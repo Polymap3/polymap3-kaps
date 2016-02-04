@@ -15,19 +15,27 @@ package org.polymap.kaps.ui.form;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.forms.widgets.Section;
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
-import org.polymap.kaps.model.data.ErtragswertverfahrenComposite;
-import org.polymap.kaps.ui.BooleanFormField;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.qi4j.api.property.Property;
+
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+import org.eclipse.ui.forms.widgets.Section;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
 import org.polymap.rhei.field.PicklistFormField;
 import org.polymap.rhei.form.IFormEditorPageSite;
-import org.qi4j.api.property.Property;
+
+import org.polymap.kaps.model.data.ErtragswertverfahrenComposite;
+import org.polymap.kaps.ui.BooleanFormField;
 
 /**
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
@@ -121,59 +129,48 @@ public class VertragsdatenBaulandSonstigesFormEditorPage
         // .setLayoutData( left().top( lastLine ).bottom( 100 ).create() ).setParent(
         // client ).create();
         
-        berechneGesamtWohnFlaeche();
+        
     }
 
-
+    @Override
+    public void afterDoLoad( IProgressMonitor monitor )
+            throws Exception {
+        berechneGesamtWohnFlaeche();
+    }
+    
 	private void berechneGesamtWohnFlaeche() {
 		ErtragswertverfahrenComposite ertragswertverfahren = ErtragswertverfahrenComposite.Mixin.forVertrag(vb.vertrag().get());
         Double gesamtFlaeche = null;
         if(ertragswertverfahren != null) {
         	gesamtFlaeche = sum(
-        			new Object [] { ertragswertverfahren.flaecheZeile1(), ertragswertverfahren.wohnflaecheZeile1()},
-        			new Object [] { ertragswertverfahren.flaecheZeile2(), ertragswertverfahren.wohnflaecheZeile2()},
-        			new Object [] { ertragswertverfahren.flaecheZeile3(), ertragswertverfahren.wohnflaecheZeile3()},
-        			new Object [] { ertragswertverfahren.flaecheZeile4(), ertragswertverfahren.wohnflaecheZeile4()},
-        			new Object [] { ertragswertverfahren.flaecheZeile5(), ertragswertverfahren.wohnflaecheZeile5()},
-        			new Object [] { ertragswertverfahren.flaecheZeile6(), ertragswertverfahren.wohnflaecheZeile6()},
-        			new Object [] { ertragswertverfahren.flaecheZeile7(), ertragswertverfahren.wohnflaecheZeile7()},
-        			new Object [] { ertragswertverfahren.flaecheZeile8(), ertragswertverfahren.wohnflaecheZeile8()},
-        			new Object [] { ertragswertverfahren.flaecheZeile9(), ertragswertverfahren.wohnflaecheZeile9()},
-        			new Object [] { ertragswertverfahren.flaecheZeile10(), ertragswertverfahren.wohnflaecheZeile10()},
-        			new Object [] { ertragswertverfahren.flaecheZeile11(), ertragswertverfahren.wohnflaecheZeile11()},
-        			new Object [] { ertragswertverfahren.flaecheZeile12(), ertragswertverfahren.wohnflaecheZeile12()},
-        			new Object [] { ertragswertverfahren.flaecheZeile13(), ertragswertverfahren.wohnflaecheZeile13()},
-        			new Object [] { ertragswertverfahren.flaecheZeile14(), ertragswertverfahren.wohnflaecheZeile14()},
-        			new Object [] { ertragswertverfahren.flaecheZeile15(), ertragswertverfahren.wohnflaecheZeile15()}
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile1(), ertragswertverfahren.wohnflaecheZeile1()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile2(), ertragswertverfahren.wohnflaecheZeile2()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile3(), ertragswertverfahren.wohnflaecheZeile3()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile4(), ertragswertverfahren.wohnflaecheZeile4()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile5(), ertragswertverfahren.wohnflaecheZeile5()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile6(), ertragswertverfahren.wohnflaecheZeile6()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile7(), ertragswertverfahren.wohnflaecheZeile7()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile8(), ertragswertverfahren.wohnflaecheZeile8()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile9(), ertragswertverfahren.wohnflaecheZeile9()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile10(), ertragswertverfahren.wohnflaecheZeile10()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile11(), ertragswertverfahren.wohnflaecheZeile11()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile12(), ertragswertverfahren.wohnflaecheZeile12()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile13(), ertragswertverfahren.wohnflaecheZeile13()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile14(), ertragswertverfahren.wohnflaecheZeile14()},
+        			new Property<?> [] { ertragswertverfahren.flaecheZeile15(), ertragswertverfahren.wohnflaecheZeile15()}
         	);
         }
         if(gesamtFlaeche != null) {
-        	getPageSite().setFieldValue(PREFIX + "wohnflaeche", gesamtFlaeche);
+        	getPageSite().setFieldValue("wohnflaeche", gesamtFlaeche);
         }
 	}
 
 
-	private Double sum(Object[]... pairs) {
+	private Double sum(Property<?>[]... pairs) {
 		Double sum = 0d;
-		for(Object [] pair : pairs) {
-			if((!(pair[0] instanceof Property<?>))) {
-				continue;
-			}
-			Property<?> flaecheProp = (Property<?>) pair[0];
-			Object flaecheObj = flaecheProp.get();
-			if(!(flaecheObj instanceof Double)) {
-				continue;
-			}
-			Double flaeche = (Double) flaecheObj;
-			if(!(pair[1] instanceof Property<?>)) {
-				continue;
-			}
-			Property<?> isWohnflaecheProp = (Property<?>) pair[1];
-			Object isWohnflaecheObj = isWohnflaecheProp.get();
-			if(!(isWohnflaecheObj instanceof Boolean)) {
-				continue;
-			}
-			Boolean isWohnflaeche = (Boolean) isWohnflaecheObj;
+		for(Property<?> [] pair : pairs) {
+			Double flaeche = (Double) pair[0].get();
+			Boolean isWohnflaeche = (Boolean) pair[1].get();
 			if(isWohnflaeche != null && isWohnflaeche && flaeche != null) {
 				sum += flaeche;
 			}
