@@ -43,7 +43,8 @@ public class RichtwertZoneZeitraumFilter
 
 
     public RichtwertZoneZeitraumFilter( ILayer layer ) {
-        super( RichtwertZoneZeitraumFilter.class.getName(), layer, "nach Zeitraum...", null, 15000, RichtwertzoneComposite.class );
+        super( RichtwertZoneZeitraumFilter.class.getName(), layer, "nach Zeitraum...", null, 15000,
+                RichtwertzoneComposite.class );
     }
 
 
@@ -66,14 +67,15 @@ public class RichtwertZoneZeitraumFilter
         // GemeindeComposite.class,
         // new PicklistFormField( typen ), null, "Gemeinde" ) );
 
-        site.addStandardLayout( site.newFormField( result, "date", Date.class, new BetweenFormField(
-                new DateTimeFormField(), new DateTimeFormField() ), null, "Gültig ab" ) );
+        site.addStandardLayout( site.newFormField( result, "date", Date.class,
+                new BetweenFormField( new DateTimeFormField(), new DateTimeFormField() ), null, "Gültig ab" ) );
 
         return result;
     }
 
 
-    protected Query<RichtwertzoneComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
+    protected Query<RichtwertzoneComposite> createFilterQuery( final IFilterEditorSite site,
+            final KapsRepository repository ) {
         RichtwertzoneComposite template = QueryExpressions.templateFor( RichtwertzoneComposite.class );
 
         Object[] jahre = (Object[])site.getFieldValue( "date" );
@@ -83,11 +85,11 @@ public class RichtwertZoneZeitraumFilter
                     .templateFor( RichtwertzoneZeitraumComposite.class );
             BooleanExpression expr2 = null;
 
-            BooleanExpression ge = jahre[0] != null ? QueryExpressions.ge( dateTemplate.gueltigAb(), dayStart((Date)jahre[0]) )
-                    : null;
+            BooleanExpression ge = jahre[0] != null
+                    ? QueryExpressions.ge( dateTemplate.gueltigAb(), dayStart( (Date)jahre[0] ) ) : null;
 
-            BooleanExpression le = jahre[1] != null ? QueryExpressions.le( dateTemplate.gueltigAb(), dayEnd((Date)jahre[1]) )
-                    : null;
+            BooleanExpression le = jahre[1] != null
+                    ? QueryExpressions.le( dateTemplate.gueltigAb(), dayEnd( (Date)jahre[1] ) ) : null;
 
             if (ge != null) {
                 expr2 = ge;
@@ -96,17 +98,19 @@ public class RichtwertZoneZeitraumFilter
                 expr2 = expr2 == null ? le : QueryExpressions.and( ge, le );
             }
             if (expr2 != null) {
-                Query<RichtwertzoneZeitraumComposite> daten = repository().findEntities(
-                        RichtwertzoneZeitraumComposite.class, expr2, 0, -1 );
+                Query<RichtwertzoneZeitraumComposite> daten = repository()
+                        .findEntities( RichtwertzoneZeitraumComposite.class, expr2, 0, -1 );
 
                 for (RichtwertzoneZeitraumComposite kv : daten) {
-                    BooleanExpression newExpr = QueryExpressions.eq( template.identity(), kv.zone().get().identity()
-                            .get() );
-                    if (dExpr == null) {
-                        dExpr = newExpr;
-                    }
-                    else {
-                        dExpr = QueryExpressions.or( dExpr, newExpr );
+                    if (kv.zone().get() != null) {
+                        BooleanExpression newExpr = QueryExpressions.eq( template.identity(),
+                                kv.zone().get().identity().get() );
+                        if (dExpr == null) {
+                            dExpr = newExpr;
+                        }
+                        else {
+                            dExpr = QueryExpressions.or( dExpr, newExpr );
+                        }
                     }
                 }
                 if (dExpr == null) {
