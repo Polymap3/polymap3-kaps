@@ -70,7 +70,7 @@ public class VertraegeFuerRWZFilter
     }
 
 
-    protected Query<VertragComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
     	
         String wert = (String) site.getFieldValue( "rwz" );
         
@@ -85,38 +85,38 @@ public class VertraegeFuerRWZFilter
     		BooleanExpression schlExpression = QueryExpressions.eq(rwzTemplate.schl(), wert);
     		BooleanExpression nameExpression = QueryExpressions.eq(rwzTemplate.name(), wert);
     		BooleanExpression searchExpression = QueryExpressions.or(schlExpression, nameExpression);
-    		Query<RichtwertzoneComposite> rwzs = KapsRepository.instance().findEntities(RichtwertzoneComposite.class, searchExpression, 0, 1);
+    		Query<RichtwertzoneComposite> rwzs = repository().findEntities(RichtwertzoneComposite.class, searchExpression, 0, 1);
     		if(rwzs.count() > 1) {
-	            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+	            sessionDisplay().asyncExec( new Runnable() {
 	            	
 	                public void run() {
 	                	MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Zu viele RWZ",
 	                			"Es wurde mehr als eine RWZ gefunden, die den gegebenen Wert als Schlüssel oder Name verwendet." );
 	                }
 	            } );
-	            return KapsRepository.instance().findEntities( VertragComposite.class,
+	            return repository().findEntities( VertragComposite.class,
 	                    QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
     		} else if(rwzs.count() == 1) {
     			rwz = rwzs.iterator().next();
     		}
         	if(rwz == null) {
-	            return KapsRepository.instance().findEntities( VertragComposite.class,
+	            return repository().findEntities( VertragComposite.class,
 	                    QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
         	}
 	
 	        FlurstueckComposite fstTemplate = QueryExpressions.templateFor( FlurstueckComposite.class );
 	        BooleanExpression rwzFstExpr = QueryExpressions.eq(fstTemplate.richtwertZone(), rwz);
-	        Query<FlurstueckComposite> fsts = KapsRepository.instance().findEntities( FlurstueckComposite.class, rwzFstExpr, 0, getMaxResults() );
+	        Query<FlurstueckComposite> fsts = repository().findEntities( FlurstueckComposite.class, rwzFstExpr, 0, getMaxResults() );
 	        
 	        if (fsts.count() > 5000) {
-	            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+	            sessionDisplay().asyncExec( new Runnable() {
 	
 	                public void run() {
 	                    MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Zu viele Ergebnisse",
 	                            "Es wurden zu viele Ergebnisse gefunden. Bitte schränken Sie die Suche weiter ein." );
 	                }
 	            } );
-	            return KapsRepository.instance().findEntities( VertragComposite.class,
+	            return repository().findEntities( VertragComposite.class,
 	                    QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
 	        }
 	        Set<Integer> eingangsNummern = new HashSet<Integer>();
@@ -143,6 +143,6 @@ public class VertraegeFuerRWZFilter
 	        }
         }
 
-        return KapsRepository.instance().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
+        return repository().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
     }
 }

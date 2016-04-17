@@ -24,10 +24,8 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.FormFieldEvent;
 import org.polymap.rhei.field.IFormFieldListener;
 import org.polymap.rhei.field.PicklistFormField;
@@ -47,7 +45,7 @@ import org.polymap.kaps.ui.MyNumberValidator;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class FlurstueckeFuerVertragGemeindeFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<FlurstueckComposite> {
 
     private static Log         log = LogFactory.getLog( FlurstueckeFuerVertragGemeindeFilter.class );
 
@@ -69,7 +67,7 @@ public class FlurstueckeFuerVertragGemeindeFilter
         Composite result = site.createStandardLayout( parent );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
+                repository().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
         FilterEditor editor = (FilterEditor)site;
 
         final PicklistFormField gemarkungen = new PicklistFormField( new PicklistFormField.ValueProvider() {
@@ -100,7 +98,7 @@ public class FlurstueckeFuerVertragGemeindeFilter
         site.addStandardLayout( site.newFormField( result, "gemarkung", GemarkungComposite.class, gemarkungen, null,
                 "Gemarkung" ) );
         site.addStandardLayout( site.newFormField( result, "nutzung", NutzungComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
+                repository().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
 
         site.addStandardLayout( site.newFormField( result, "nummer", Integer.class, new StringFormField(),
                 new MyNumberValidator( Integer.class ), "Flurstücksnummer" ) );
@@ -112,7 +110,7 @@ public class FlurstueckeFuerVertragGemeindeFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<FlurstueckComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         GemeindeComposite gemeinde = (GemeindeComposite)site.getFieldValue( "gemeinde" );
         GemarkungComposite gemarkung = (GemarkungComposite)site.getFieldValue( "gemarkung" );
@@ -133,7 +131,7 @@ public class FlurstueckeFuerVertragGemeindeFilter
         }
         else if (gemeinde != null) {
             GemarkungComposite gemarkungTemplate = QueryExpressions.templateFor( GemarkungComposite.class );
-            Query<GemarkungComposite> gemarkungen = KapsRepository.instance().findEntities( GemarkungComposite.class,
+            Query<GemarkungComposite> gemarkungen = repository().findEntities( GemarkungComposite.class,
                     QueryExpressions.eq( gemarkungTemplate.gemeinde(), gemeinde ), 0, -1 );
             for (GemarkungComposite gemarkungg : gemarkungen) {
                 BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkungg );
@@ -155,6 +153,6 @@ public class FlurstueckeFuerVertragGemeindeFilter
         qExpr = qExpr == null ? nExpr : and( qExpr, nExpr );
         qExpr = qExpr == null ? gExpr :and( qExpr, gExpr );
 
-        return KapsRepository.instance().findEntities( FlurstueckComposite.class, qExpr, 0, getMaxResults() );
+        return repository().findEntities( FlurstueckComposite.class, qExpr, 0, getMaxResults() );
     }
 }

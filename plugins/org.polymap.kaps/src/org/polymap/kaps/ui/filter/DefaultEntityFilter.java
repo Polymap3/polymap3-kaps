@@ -198,7 +198,7 @@ public class DefaultEntityFilter<T extends Entity>
 
 
     @Override
-    protected Query<T> createQuery( IFilterEditorSite site ) {
+    protected Query<T> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         try {
 
             BooleanExpression expr = null;

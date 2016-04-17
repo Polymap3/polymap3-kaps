@@ -21,23 +21,21 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilterEditorSite;
 
 import org.polymap.kaps.model.KapsRepository;
-import org.polymap.kaps.model.data.VertragsdatenAgrarComposite;
 import org.polymap.kaps.model.data.VertragComposite;
+import org.polymap.kaps.model.data.VertragsdatenAgrarComposite;
 import org.polymap.kaps.ui.MyNumberValidator;
 
 /**
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class EinzelneVertragsdatenAgrarFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<VertragsdatenAgrarComposite>{
 
     private static Log log = LogFactory.getLog( EinzelneVertragsdatenAgrarFilter.class );
 
@@ -62,13 +60,13 @@ public class EinzelneVertragsdatenAgrarFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragsdatenAgrarComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         VertragComposite template = QueryExpressions.templateFor( VertragComposite.class );
 
         Integer nummer = (Integer)site.getFieldValue( "eingangsNr" );
         BooleanExpression expr = nummer != null ? QueryExpressions.eq( template.eingangsNr(), nummer ) : null;
 
-        Query<VertragComposite> kaufvertraege = KapsRepository.instance().findEntities( VertragComposite.class, expr,
+        Query<VertragComposite> kaufvertraege = repository().findEntities( VertragComposite.class, expr,
                 0, getMaxResults() );
 
         VertragsdatenAgrarComposite templateB = QueryExpressions.templateFor( VertragsdatenAgrarComposite.class );
@@ -85,7 +83,7 @@ public class EinzelneVertragsdatenAgrarFilter
         if (inExpr == null) {
             inExpr = QueryExpressions.eq( template.identity(), "unknown" );
         }
-        return KapsRepository.instance()
+        return repository
                 .findEntities( VertragsdatenAgrarComposite.class, inExpr, 0, getMaxResults() );
 
     }

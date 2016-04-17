@@ -21,10 +21,8 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilterEditorSite;
 
@@ -36,7 +34,7 @@ import org.polymap.kaps.ui.MyNumberValidator;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class EinzelnerVertragFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<VertragComposite> {
 
     private static Log log = LogFactory.getLog( EinzelnerVertragFilter.class );
 
@@ -62,7 +60,7 @@ public class EinzelnerVertragFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         VertragComposite template = QueryExpressions
                 .templateFor( VertragComposite.class );
 
@@ -70,7 +68,7 @@ public class EinzelnerVertragFilter
         BooleanExpression expr = nummer != null ? QueryExpressions.eq(
                 template.eingangsNr(), nummer ) : null;
 
-        return KapsRepository.instance().findEntities( VertragComposite.class, expr, 0,
+        return repository().findEntities( VertragComposite.class, expr, 0,
                 getMaxResults() );
     }
 }

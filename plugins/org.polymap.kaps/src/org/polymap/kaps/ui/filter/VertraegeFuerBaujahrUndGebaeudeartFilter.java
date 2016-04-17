@@ -85,10 +85,10 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
                 new DateTimeFormField(), new DateTimeFormField() ), null, "Vertragsdatum" ) );
 
         site.addStandardLayout( site.newFormField( result, "vertragsart", VertragsArtComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( VertragsArtComposite.class ) ), null, "Vertragsart" ) );
+                repository().entitiesWithNames( VertragsArtComposite.class ) ), null, "Vertragsart" ) );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
+                repository().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
 
         FilterEditor editor = (FilterEditor)site;
 
@@ -121,9 +121,9 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
                 "Gemarkung" ) );
 
         site.addStandardLayout( site.newFormField( result, "nutzung", NutzungComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
+                repository().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
         final SelectlistFormField arten = new SelectlistFormField(
-                KapsRepository.instance().entitiesWithNames( GebaeudeArtComposite.class ) );
+                repository().entitiesWithNames( GebaeudeArtComposite.class ) );
         arten.setIsMultiple( true );
         Composite formField = site.newFormField( result, "gebart", GebaeudeArtComposite.class, arten, null, "Gebäudeart" );
         site.addStandardLayout( formField );
@@ -143,7 +143,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
     }
 
 
-    protected Query<VertragComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         List<GebaeudeArtComposite> gebaeudeArten = (List<GebaeudeArtComposite>)site.getFieldValue( "gebart" );
         NutzungComposite nutzung = (NutzungComposite)site.getFieldValue( "nutzung" );
@@ -181,7 +181,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
         Set<VertragComposite> vertraegeNachDatum = null;
         if (vertragsDatumExpr != null) {
             vertraegeNachDatum = Sets.newHashSet();
-            Query<VertragComposite> vertraege = KapsRepository.instance().findEntities( VertragComposite.class,
+            Query<VertragComposite> vertraege = repository().findEntities( VertragComposite.class,
                     vertragsDatumExpr, 0, -1 );
             for (VertragComposite vertrag : vertraege) {
                 vertraegeNachDatum.add( vertrag );
@@ -203,7 +203,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
         }
         else if (gemeinde != null) {
             GemarkungComposite gemarkungTemplate = QueryExpressions.templateFor( GemarkungComposite.class );
-            Query<GemarkungComposite> gemarkungen = KapsRepository.instance().findEntities( GemarkungComposite.class,
+            Query<GemarkungComposite> gemarkungen = repository().findEntities( GemarkungComposite.class,
                     QueryExpressions.eq( gemarkungTemplate.gemeinde(), gemeinde ), 0, -1 );
             for (GemarkungComposite gemarkungg : gemarkungen) {
                 BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkungg );
@@ -252,7 +252,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
         if (qExpr != null) {
             // flurstücke eingeschränkt, falls keine gefunden werden ist das set leer
             vertraegeNachDatumUndFlurstueck = new HashSet<VertragComposite>();
-            Query<FlurstueckComposite> flurstuecke = KapsRepository.instance().findEntities( FlurstueckComposite.class,
+            Query<FlurstueckComposite> flurstuecke = repository().findEntities( FlurstueckComposite.class,
                     qExpr, 0, -1 );
             for (FlurstueckComposite fc : flurstuecke) {
                 // mehrere Flurstücke können einem Vertrag angehören
@@ -290,7 +290,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
                 expr2 = expr2 == null ? le : QueryExpressions.and( ge, le );
             }
             if (expr2 != null) {
-                Query<VertragsdatenBaulandComposite> daten = KapsRepository.instance().findEntities(
+                Query<VertragsdatenBaulandComposite> daten = repository().findEntities(
                         VertragsdatenBaulandComposite.class, expr2, 0, -1 );
                 for (VertragsdatenBaulandComposite kv : daten) {
                     VertragComposite v = kv.vertrag().get();
@@ -308,14 +308,14 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
         if (vertraegeNachDatumUndFlurstueckUndBaujahr != null) {
             if (vertraegeNachDatumUndFlurstueckUndBaujahr.size() > 5000) {
 
-                Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                sessionDisplay().asyncExec( new Runnable() {
 
                     public void run() {
                         MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Zu viele Ergebnisse",
                                 "Es wurden über 5000 Ergebnisse gefunden. Bitte schränken Sie die Suche weiter ein." );
                     }
                 } );
-                return KapsRepository.instance().findEntities( VertragComposite.class,
+                return repository().findEntities( VertragComposite.class,
                         QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
             }
             for (VertragComposite vertrag : vertraegeNachDatumUndFlurstueckUndBaujahr) {
@@ -358,7 +358,7 @@ public class VertraegeFuerBaujahrUndGebaeudeartFilter
         int oldMax = BooleanQuery.getMaxClauseCount();
         try {
         	BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
-        	return KapsRepository.instance().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
+        	return repository().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
         } finally {
         	BooleanQuery.setMaxClauseCount(oldMax);
         }

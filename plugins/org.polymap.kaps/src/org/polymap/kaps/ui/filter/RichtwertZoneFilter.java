@@ -23,10 +23,8 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.PicklistFormField;
 import org.polymap.rhei.filter.IFilterEditorSite;
 
@@ -38,7 +36,7 @@ import org.polymap.kaps.model.data.RichtwertzoneComposite;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class RichtwertZoneFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<RichtwertzoneComposite> {
 
     private static Log log = LogFactory.getLog( RichtwertZoneFilter.class );
 
@@ -59,7 +57,7 @@ public class RichtwertZoneFilter
         RichtwertzoneComposite template = QueryExpressions
                 .templateFor( RichtwertzoneComposite.class );
 
-        Map<String, GemeindeComposite> typen = KapsRepository.instance().entitiesWithNames(
+        Map<String, GemeindeComposite> typen = repository().entitiesWithNames(
                 GemeindeComposite.class );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class,
@@ -69,7 +67,7 @@ public class RichtwertZoneFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<RichtwertzoneComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         RichtwertzoneComposite template = QueryExpressions
                 .templateFor( RichtwertzoneComposite.class );
 
@@ -77,7 +75,7 @@ public class RichtwertZoneFilter
         BooleanExpression expr = gemeinde != null ? QueryExpressions.eq( template.gemeinde(),
                 gemeinde ) : null;
 
-        return KapsRepository.instance().findEntities( RichtwertzoneComposite.class, expr, 0,
+        return repository().findEntities( RichtwertzoneComposite.class, expr, 0,
                 getMaxResults() );
     }
 }

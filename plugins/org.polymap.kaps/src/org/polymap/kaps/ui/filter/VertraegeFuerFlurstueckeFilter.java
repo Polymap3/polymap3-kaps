@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.polymap.core.project.ILayer;
-import org.polymap.core.runtime.Polymap;
 import org.polymap.core.workbench.PolymapWorkbench;
 
 import org.polymap.rhei.field.BetweenFormField;
@@ -75,10 +74,10 @@ public class VertraegeFuerFlurstueckeFilter
                 new DateTimeFormField(), new DateTimeFormField() ), new BetweenValidator( new NotNullValidator() ), "Vertragsdatum" ) );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
+                repository().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
 
         site.addStandardLayout( site.newFormField( result, "nutzung", NutzungComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
+                repository().entitiesWithNames( NutzungComposite.class ) ), null, "Nutzung" ) );
 
         site.addStandardLayout( site.newFormField( result, "nummer", Integer.class, new StringFormField(),
                 new MyNumberValidator( Integer.class ), "Flurstücksnummer" ) );
@@ -90,7 +89,7 @@ public class VertraegeFuerFlurstueckeFilter
     }
 
 
-    protected Query<VertragComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         GemeindeComposite gemeinde = (GemeindeComposite)site.getFieldValue( "gemeinde" );
         NutzungComposite nutzung = (NutzungComposite)site.getFieldValue( "nutzung" );
@@ -124,7 +123,7 @@ public class VertraegeFuerFlurstueckeFilter
             // nach Vertragsdatum vorsortieren
             BooleanExpression vExpr = null;
             if (vertragsDatumExpr != null) {
-                Query<VertragComposite> vertraege = KapsRepository.instance().findEntities( VertragComposite.class,
+                Query<VertragComposite> vertraege = repository().findEntities( VertragComposite.class,
                         vertragsDatumExpr, 0, -1 );
                 for (VertragComposite vertrag : vertraege) {
                     BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.vertrag(), vertrag );
@@ -141,7 +140,7 @@ public class VertraegeFuerFlurstueckeFilter
             BooleanExpression gExpr = null;
             if (gemeinde != null) {
                 GemarkungComposite gemarkungTemplate = QueryExpressions.templateFor( GemarkungComposite.class );
-                Query<GemarkungComposite> gemarkungen = KapsRepository.instance().findEntities(
+                Query<GemarkungComposite> gemarkungen = repository().findEntities(
                         GemarkungComposite.class, QueryExpressions.eq( gemarkungTemplate.gemeinde(), gemeinde ), 0, -1 );
                 for (GemarkungComposite gemarkung : gemarkungen) {
                     BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkung );
@@ -195,17 +194,17 @@ public class VertraegeFuerFlurstueckeFilter
                 qExpr = nExpr;
             }
 
-            Query<FlurstueckComposite> flurstuecke = KapsRepository.instance().findEntities( FlurstueckComposite.class,
+            Query<FlurstueckComposite> flurstuecke = repository().findEntities( FlurstueckComposite.class,
                     qExpr, 0, -1 );
             if (flurstuecke.count() > 5000) {
-                Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                sessionDisplay().asyncExec( new Runnable() {
 
                     public void run() {
                         MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Zu viele Ergebnisse",
-                                "Es wurden zu viele Ergebnisse gefunden. Bitte schränken Sie die Suche weiter ein." );
+                                "Es wurden über 5000 Ergebnisse gefunden. Bitte schränken Sie die Suche weiter ein." );
                     }
                 } );
-                return KapsRepository.instance().findEntities( VertragComposite.class,
+                return repository().findEntities( VertragComposite.class,
                         QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
             }
             Set<Integer> eingangsNummern = new HashSet<Integer>();
@@ -242,6 +241,6 @@ public class VertraegeFuerFlurstueckeFilter
             allExpr = fExpr;
         }
 
-        return KapsRepository.instance().findEntities( VertragComposite.class, allExpr, 0, getMaxResults() );
+        return repository().findEntities( VertragComposite.class, allExpr, 0, getMaxResults() );
     }
 }

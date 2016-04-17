@@ -88,7 +88,7 @@ public class VertragsdatenAgrarAgrarFilter
         site.addStandardLayout( site.newFormField( result, "datum", Date.class, new BetweenFormField(
                 new DateTimeFormField(), new DateTimeFormField() ), new BetweenValidator( new NotNullValidator() ),
                 "Vertragsdatum" ) );
-        SelectlistFormField gemeinden = new SelectlistFormField( KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) );
+        SelectlistFormField gemeinden = new SelectlistFormField( repository().entitiesWithNames( GemeindeComposite.class ) );
         gemeinden.setIsMultiple( true );
         Composite formField = site.newFormField( result, "gemeinde", GemeindeComposite.class,
                 gemeinden,
@@ -131,7 +131,7 @@ public class VertragsdatenAgrarAgrarFilter
         ((FormData)formField.getLayoutData()).height = 200;
         ((FormData)formField.getLayoutData()).width = 100;
         
-        SelectlistFormField field = new SelectlistFormField( KapsRepository.instance().entitiesWithNames(
+        SelectlistFormField field = new SelectlistFormField( repository().entitiesWithNames(
                 NutzungComposite.class ) );
         field.setIsMultiple( true );
         formField = site.newFormField( result, "nutzung", NutzungComposite.class, field,
@@ -140,7 +140,7 @@ public class VertragsdatenAgrarAgrarFilter
         ((FormData)formField.getLayoutData()).height = 200;
         ((FormData)formField.getLayoutData()).width = 100;
 
-        field = new SelectlistFormField( KapsRepository.instance().entitiesWithNames( BodennutzungComposite.class ) );
+        field = new SelectlistFormField( repository().entitiesWithNames( BodennutzungComposite.class ) );
         field.setIsMultiple( true );
         formField = site
                 .newFormField( result, "bodennutzung", BodennutzungComposite.class, field, null, "Bodennutzung" );
@@ -163,7 +163,7 @@ public class VertragsdatenAgrarAgrarFilter
 
 
     @Override
-    protected Query<VertragsdatenAgrarComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragsdatenAgrarComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         List<NutzungComposite> nutzungen = (List<NutzungComposite>)site.getFieldValue( "nutzung" );
         List<BodennutzungComposite> bodennutzungen = (List<BodennutzungComposite>)site.getFieldValue( "bodennutzung" );
@@ -196,7 +196,7 @@ public class VertragsdatenAgrarAgrarFilter
         Set<VertragComposite> vertraegeNachDatum = null;
         if (vertragsDatumExpr != null) {
             vertraegeNachDatum = Sets.newHashSet();
-            Query<VertragComposite> vertraege = KapsRepository.instance().findEntities( VertragComposite.class,
+            Query<VertragComposite> vertraege = repository().findEntities( VertragComposite.class,
                     vertragsDatumExpr, 0, -1 );
             for (VertragComposite vertrag : vertraege) {
                 vertraegeNachDatum.add( vertrag );
@@ -232,7 +232,7 @@ public class VertragsdatenAgrarAgrarFilter
             if (gSubExpr == null) {
                 gSubExpr = QueryExpressions.eq( gemarkungTemplate.identity(), "unknown" );
             }
-            Query<GemarkungComposite> subGemarkungen = KapsRepository.instance().findEntities(
+            Query<GemarkungComposite> subGemarkungen = repository().findEntities(
                     GemarkungComposite.class, gSubExpr, 0, -1 );
             for (GemarkungComposite gemarkungg : subGemarkungen) {
                 BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkungg );
@@ -275,7 +275,7 @@ public class VertragsdatenAgrarAgrarFilter
         Set<VertragComposite> vertraegeNachDatumUndFlurstueck = new HashSet<VertragComposite>();
 
         if (nExpr != null) {
-            Query<FlurstueckComposite> flurstuecke = KapsRepository.instance().findEntities( FlurstueckComposite.class,
+            Query<FlurstueckComposite> flurstuecke = repository().findEntities( FlurstueckComposite.class,
                     nExpr, 0, -1 );
 
             for (FlurstueckComposite fc : flurstuecke) {
@@ -289,14 +289,14 @@ public class VertragsdatenAgrarAgrarFilter
             }
         }
         if (vertraegeNachDatumUndFlurstueck.size() > 5000) {
-            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+            sessionDisplay().asyncExec( new Runnable() {
 
                 public void run() {
                     MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Zu viele Ergebnisse",
                             "Es wurden über 5000 Ergebnisse gefunden. Bitte schränken Sie die Suche weiter ein." );
                 }
             } );
-            return KapsRepository.instance().findEntities( VertragsdatenAgrarComposite.class,
+            return repository().findEntities( VertragsdatenAgrarComposite.class,
                     QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
         }
         for (VertragComposite vertrag : vertraegeNachDatumUndFlurstueck) {
@@ -398,7 +398,7 @@ public class VertragsdatenAgrarAgrarFilter
         int oldMax = BooleanQuery.getMaxClauseCount();
         try {
         	BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
-            return KapsRepository.instance().findEntities( VertragsdatenAgrarComposite.class, fExpr, 0, getMaxResults() );
+            return repository().findEntities( VertragsdatenAgrarComposite.class, fExpr, 0, getMaxResults() );
         } finally {
         	BooleanQuery.setMaxClauseCount(oldMax);
         }

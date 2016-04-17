@@ -57,7 +57,7 @@ public class BrokenRichtwertZoneZeitraumFilter
         // .templateFor( RichtwertzoneComposite.class );
         //
         // Map<String, GemeindeComposite> typen =
-        // KapsRepository.instance().entitiesWithNames(
+        // repository().entitiesWithNames(
         // GemeindeComposite.class );
         //
         // site.addStandardLayout( site.newFormField( result, "gemeinde",
@@ -72,12 +72,12 @@ public class BrokenRichtwertZoneZeitraumFilter
     }
 
 
-    protected Query<RichtwertzoneZeitraumComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<RichtwertzoneZeitraumComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         RichtwertzoneZeitraumComposite template = QueryExpressions.templateFor( RichtwertzoneZeitraumComposite.class );
 
         BooleanExpression expr = QueryExpressions.or( QueryExpressions.eq( template.schl(), "--- Zone fehlt ---" ),
                 QueryExpressions.eq( template.gueltigAb(), new Date(0) ));
 
-        return KapsRepository.instance().findEntities( RichtwertzoneZeitraumComposite.class, expr, 0, getMaxResults() );
+        return repository().findEntities( RichtwertzoneZeitraumComposite.class, expr, 0, getMaxResults() );
     }
 }

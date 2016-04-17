@@ -21,16 +21,13 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilterEditorSite;
 
 import org.polymap.kaps.model.KapsRepository;
 import org.polymap.kaps.model.data.FlurstueckComposite;
-import org.polymap.kaps.model.data.VertragsdatenAgrarComposite;
 import org.polymap.kaps.model.data.VertragComposite;
 import org.polymap.kaps.ui.MyNumberValidator;
 
@@ -38,7 +35,7 @@ import org.polymap.kaps.ui.MyNumberValidator;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class FlurstueckFuerEinzelnenVertragFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<FlurstueckComposite> {
 
     private static Log log = LogFactory.getLog( FlurstueckFuerEinzelnenVertragFilter.class );
 
@@ -63,13 +60,13 @@ public class FlurstueckFuerEinzelnenVertragFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<FlurstueckComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         VertragComposite template = QueryExpressions.templateFor( VertragComposite.class );
 
         Integer nummer = (Integer)site.getFieldValue( "eingangsNr" );
         BooleanExpression expr = nummer != null ? QueryExpressions.eq( template.eingangsNr(), nummer ) : null;
 
-        Query<VertragComposite> kaufvertraege = KapsRepository.instance().findEntities( VertragComposite.class, expr,
+        Query<VertragComposite> kaufvertraege = repository().findEntities( VertragComposite.class, expr,
                 0, getMaxResults() );
 
         FlurstueckComposite templateB = QueryExpressions.templateFor( FlurstueckComposite.class );
@@ -86,7 +83,7 @@ public class FlurstueckFuerEinzelnenVertragFilter
         if (inExpr == null) {
             inExpr = QueryExpressions.eq( template.identity(), "unknown" );
         }
-        return KapsRepository.instance()
+        return repository
                 .findEntities( FlurstueckComposite.class, inExpr, 0, getMaxResults() );
 
     }

@@ -27,10 +27,8 @@ import com.google.common.collect.Sets;
 
 import org.eclipse.swt.widgets.Composite;
 
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.field.FormFieldEvent;
 import org.polymap.rhei.field.IFormFieldListener;
 import org.polymap.rhei.field.PicklistFormField;
@@ -51,7 +49,7 @@ import org.polymap.kaps.ui.MyNumberValidator;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class GebaeudeFuerFlurstueckeFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<GebaeudeComposite> {
 
     private static Log         log = LogFactory.getLog( GebaeudeFuerFlurstueckeFilter.class );
 
@@ -73,7 +71,7 @@ public class GebaeudeFuerFlurstueckeFilter
         Composite result = site.createStandardLayout( parent );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
+                repository().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
         FilterEditor editor = (FilterEditor)site;
 
         final PicklistFormField gemarkungen = new PicklistFormField( new PicklistFormField.ValueProvider() {
@@ -133,7 +131,7 @@ public class GebaeudeFuerFlurstueckeFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<GebaeudeComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         GemeindeComposite gemeinde = (GemeindeComposite)site.getFieldValue( "gemeinde" );
         GemarkungComposite gemarkung = (GemarkungComposite)site.getFieldValue( "gemarkung" );
@@ -157,7 +155,7 @@ public class GebaeudeFuerFlurstueckeFilter
         }
         if (gExpr == null && gemeinde != null) {
             GemarkungComposite gemarkungTemplate = QueryExpressions.templateFor( GemarkungComposite.class );
-            Query<GemarkungComposite> gemarkungen = KapsRepository.instance().findEntities( GemarkungComposite.class,
+            Query<GemarkungComposite> gemarkungen = repository().findEntities( GemarkungComposite.class,
                     QueryExpressions.eq( gemarkungTemplate.gemeinde(), gemeinde ), 0, -1 );
             for (GemarkungComposite gemarkungg : gemarkungen) {
                 BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkungg );
@@ -183,12 +181,12 @@ public class GebaeudeFuerFlurstueckeFilter
             gebaeudeIds = Sets.newHashSet();
 
             // flurstücke eingeschränkt, falls keine gefunden werden ist das set leer
-            Query<FlurstueckComposite> flurstuecke = KapsRepository.instance().findEntities( FlurstueckComposite.class,
+            Query<FlurstueckComposite> flurstuecke = repository().findEntities( FlurstueckComposite.class,
                     qExpr, 0, -1 );
             for (FlurstueckComposite fc : flurstuecke) {
                 // contains predicate geht bei ManyAssociaiton nicht, deshalb hier je
                 // Flustück checken, in welchen Gebaeuden das drin ist
-                for (GebaeudeComposite gebaeude : KapsRepository.instance().findEntities( GebaeudeComposite.class,
+                for (GebaeudeComposite gebaeude : repository().findEntities( GebaeudeComposite.class,
                         null, 0, -1 )) {
                     if (gebaeude.flurstuecke().contains( fc )) {
                         gebaeudeIds.add( gebaeude.id() );
@@ -220,6 +218,6 @@ public class GebaeudeFuerFlurstueckeFilter
             }
         }
 
-        return KapsRepository.instance().findEntities( GebaeudeComposite.class, gebExpr, 0, getMaxResults() );
+        return repository().findEntities( GebaeudeComposite.class, gebExpr, 0, getMaxResults() );
     }
 }

@@ -81,12 +81,12 @@ public class WohnungETWFilter
                 "Vertragsdatum" ) );
 
         site.addStandardLayout( site.newFormField( result, "vertragsart", VertragsArtComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( VertragsArtComposite.class ) ), null, "Vertragsart" ) );
+                repository().entitiesWithNames( VertragsArtComposite.class ) ), null, "Vertragsart" ) );
 
         site.addStandardLayout( site.newFormField( result, "gemeinde", GemeindeComposite.class, new PicklistFormField(
-                KapsRepository.instance().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
+                repository().entitiesWithNames( GemeindeComposite.class ) ), null, "Gemeinde" ) );
 
-        SelectlistFormField field = new SelectlistFormField( KapsRepository.instance().entitiesWithNames(
+        SelectlistFormField field = new SelectlistFormField( repository().entitiesWithNames(
                 NutzungComposite.class ) );
         field.setIsMultiple( true );
         Composite formField = site.newFormField( result, "nutzung", NutzungComposite.class, field,
@@ -95,7 +95,7 @@ public class WohnungETWFilter
         ((FormData)formField.getLayoutData()).height = 200;
         ((FormData)formField.getLayoutData()).width = 100;
 
-        field = new SelectlistFormField( KapsRepository.instance().entitiesWithNames( GebaeudeArtComposite.class ) );
+        field = new SelectlistFormField( repository().entitiesWithNames( GebaeudeArtComposite.class ) );
         field.setIsMultiple( true );
         formField = site.newFormField( result, "gebaeudeArt", BodennutzungComposite.class, field, null, "Gebäudeart" );
         site.addStandardLayout( formField );
@@ -107,7 +107,7 @@ public class WohnungETWFilter
 
 
     @Override
-    protected Query<WohnungComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<WohnungComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         List<NutzungComposite> nutzungen = (List<NutzungComposite>)site.getFieldValue( "nutzung" );
         List<GebaeudeArtComposite> gebaeudearten = (List<GebaeudeArtComposite>)site.getFieldValue( "gebaeudeArt" );
@@ -151,7 +151,7 @@ public class WohnungETWFilter
         Set<VertragComposite> vertraegeNachDatum = null;
         if (vertragsDatumExpr != null) {
             vertraegeNachDatum = Sets.newHashSet();
-            Query<VertragComposite> vertraege = KapsRepository.instance().findEntities( VertragComposite.class,
+            Query<VertragComposite> vertraege = repository().findEntities( VertragComposite.class,
                     vertragsDatumExpr, 0, -1 );
             for (VertragComposite vertrag : vertraege) {
                 vertraegeNachDatum.add( vertrag );
@@ -162,7 +162,7 @@ public class WohnungETWFilter
         BooleanExpression gExpr = null;
         if (gemeinde != null) {
             GemarkungComposite gemarkungTemplate = QueryExpressions.templateFor( GemarkungComposite.class );
-            Query<GemarkungComposite> gemarkungen = KapsRepository.instance().findEntities( GemarkungComposite.class,
+            Query<GemarkungComposite> gemarkungen = repository().findEntities( GemarkungComposite.class,
                     QueryExpressions.eq( gemarkungTemplate.gemeinde(), gemeinde ), 0, -1 );
             for (GemarkungComposite gemarkungg : gemarkungen) {
                 BooleanExpression newExpr = QueryExpressions.eq( flurTemplate.gemarkung(), gemarkungg );
@@ -223,7 +223,7 @@ public class WohnungETWFilter
         }
         Set<FlurstueckComposite> gefilterterFlurstuecke = null;
         if (nExpr != null) {
-            Query<FlurstueckComposite> flurstuecke = KapsRepository.instance().findEntities( FlurstueckComposite.class,
+            Query<FlurstueckComposite> flurstuecke = repository().findEntities( FlurstueckComposite.class,
                     nExpr, 0, -1 );
 
             gefilterterFlurstuecke = new HashSet<FlurstueckComposite>();
@@ -238,7 +238,7 @@ public class WohnungETWFilter
             }
         }
         // if (gefilterterFlurstuecke.size() > 5000) {
-        // Polymap.getSessionDisplay().asyncExec( new Runnable() {
+        // sessionDisplay().asyncExec( new Runnable() {
         //
         // public void run() {
         // MessageDialog.openError( PolymapWorkbench.getShellToParentOn(),
@@ -247,7 +247,7 @@ public class WohnungETWFilter
         // );
         // }
         // } );
-        // return KapsRepository.instance().findEntities( WohnungComposite.class,
+        // return repository().findEntities( WohnungComposite.class,
         // QueryExpressions.eq( template.identity(), "unknown" ), 0, -1 );
         // }
 
@@ -255,7 +255,7 @@ public class WohnungETWFilter
         if (gefilterterFlurstuecke != null || vertraegeNachDatum != null) {
             // ansonsten alles zurückgeben
 
-            Query<WohnungComposite> alleWohnungen = KapsRepository.instance().findEntities( WohnungComposite.class,
+            Query<WohnungComposite> alleWohnungen = repository().findEntities( WohnungComposite.class,
                     null, 0, -1 );
 
             for (WohnungComposite wohnung : alleWohnungen) {
@@ -279,6 +279,6 @@ public class WohnungETWFilter
                 wExpr = QueryExpressions.eq( template.identity(), "unknown" );
             }
         }
-        return KapsRepository.instance().findEntities( WohnungComposite.class, wExpr, 0, getMaxResults() );
+        return repository().findEntities( WohnungComposite.class, wExpr, 0, getMaxResults() );
     }
 }

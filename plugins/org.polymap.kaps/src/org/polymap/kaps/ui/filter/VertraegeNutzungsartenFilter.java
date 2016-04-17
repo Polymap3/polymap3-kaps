@@ -14,9 +14,7 @@ package org.polymap.kaps.ui.filter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,32 +28,16 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 import com.google.common.collect.Sets;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-
-import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
-import org.polymap.core.runtime.Polymap;
-import org.polymap.core.workbench.PolymapWorkbench;
 
-import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
-import org.polymap.rhei.field.BetweenFormField;
-import org.polymap.rhei.field.BetweenValidator;
-import org.polymap.rhei.field.DateTimeFormField;
 import org.polymap.rhei.field.PicklistFormField;
-import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilterEditorSite;
 
 import org.polymap.kaps.model.KapsRepository;
 import org.polymap.kaps.model.data.FlurstueckComposite;
-import org.polymap.kaps.model.data.GebaeudeArtComposite;
-import org.polymap.kaps.model.data.GemarkungComposite;
-import org.polymap.kaps.model.data.GemeindeComposite;
 import org.polymap.kaps.model.data.NutzungComposite;
 import org.polymap.kaps.model.data.VertragComposite;
-import org.polymap.kaps.model.data.VertragsdatenBaulandComposite;
-import org.polymap.kaps.ui.MyNumberValidator;
 import org.polymap.kaps.ui.NotNullValidator;
 
 /**
@@ -63,7 +45,7 @@ import org.polymap.kaps.ui.NotNullValidator;
  * @author <a href="http://www.polymap.de">Steffen Stundzig</a>
  */
 public class VertraegeNutzungsartenFilter
-        extends AbstractEntityFilter {
+        extends KapsEntityFilter<VertragComposite> {
 
     private static Log log = LogFactory.getLog( VertraegeNutzungsartenFilter.class );
 
@@ -96,7 +78,7 @@ public class VertraegeNutzungsartenFilter
     }
 
 
-    protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+    protected Query<VertragComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
 
         BooleanExpression jExpr = null;
         VertragComposite template = QueryExpressions.templateFor( VertragComposite.class );
@@ -123,7 +105,7 @@ public class VertraegeNutzungsartenFilter
         }
         Set<Integer> nummern = Sets.newHashSet();
 
-        for (VertragComposite vertrag : KapsRepository.instance().findEntities( VertragComposite.class, jExpr, 0, -1 )) {
+        for (VertragComposite vertrag : repository().findEntities( VertragComposite.class, jExpr, 0, -1 )) {
             NutzungComposite nutzung = null;
             for (FlurstueckComposite flurstueck : FlurstueckComposite.Mixin.forEntity( vertrag )) {
                 if (nutzung == null) {
@@ -154,6 +136,6 @@ public class VertraegeNutzungsartenFilter
             fExpr = QueryExpressions.eq( template.identity(), "unknown" );
         }
 
-        return KapsRepository.instance().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
+        return repository().findEntities( VertragComposite.class, fExpr, 0, getMaxResults() );
     }
 }

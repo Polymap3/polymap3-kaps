@@ -19,20 +19,27 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
 import java.text.SimpleDateFormat;
 
 import org.geotools.feature.NameImpl;
 import org.opengis.feature.type.Name;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.QueryExpressions;
 import org.qi4j.api.query.grammar.BooleanExpression;
 import org.qi4j.api.service.ServiceReference;
-import org.eclipse.jface.dialogs.MessageDialog;
+
 import org.eclipse.rwt.RWT;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
+
 import org.polymap.core.catalog.model.CatalogRepository;
 import org.polymap.core.model.Entity;
 import org.polymap.core.model.EntityType;
@@ -43,10 +50,9 @@ import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
-import org.polymap.core.runtime.ISessionListener;
 import org.polymap.core.runtime.Polymap;
-import org.polymap.core.runtime.SessionContext;
 import org.polymap.core.workbench.PolymapWorkbench;
+
 import org.polymap.kaps.model.data.*;
 import org.polymap.kaps.model.idgen.EingangsNummerGeneratorService;
 import org.polymap.kaps.model.idgen.GebaeudeNummerGeneratorService;
@@ -145,8 +151,9 @@ public class KapsRepository
         // is no request context
         if (Polymap.getSessionDisplay() != null) {
             OperationSupport.instance().addOperationSaveListener( operationListener );
-            if(RWT.getRequest() != null && RWT.getRequest().getSession() != null) {
-            	RWT.getRequest().getSession().setMaxInactiveInterval(5400); // 90min timeout
+            if (RWT.getRequest() != null && RWT.getRequest().getSession() != null) {
+                RWT.getRequest().getSession().setMaxInactiveInterval( 5400 ); // 90min
+                                                                              // timeout
             }
         }
         eingangsNummern = assembler.getModule().serviceFinder().findService( EingangsNummerGeneratorService.class );
@@ -173,42 +180,45 @@ public class KapsRepository
         try {
 
             kapsService = new KapsService( new KaufvertragEntityProvider( this ),
-                    new RichtwertzoneEntityProvider( this ), new SimpleEntityProvider<VertragsArtComposite>( this,
-                            VertragsArtComposite.class, new NameImpl( KapsRepository.NAMESPACE,
-                                    VertragsArtComposite.NAME ) ),
-                    new SimpleEntityProvider<BelastungComposite>( this, BelastungComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, BelastungComposite.NAME ) ),
+                    new RichtwertzoneEntityProvider( this ),
+                    new SimpleEntityProvider<VertragsArtComposite>( this, VertragsArtComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, VertragsArtComposite.NAME ) ),
+                    new SimpleEntityProvider<BelastungComposite>( this, BelastungComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, BelastungComposite.NAME ) ),
                     new SimpleEntityProvider<RichtwertzoneZeitraumComposite>( this,
-                            RichtwertzoneZeitraumComposite.class, new NameImpl( KapsRepository.NAMESPACE,
-                                    RichtwertzoneZeitraumComposite.NAME ) ), new FlurstueckEntityProvider( this ),
-                    new SimpleEntityProvider<KaeuferKreisComposite>( this, KaeuferKreisComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, KaeuferKreisComposite.NAME ) ),
+                            RichtwertzoneZeitraumComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, RichtwertzoneZeitraumComposite.NAME ) ),
+                    new FlurstueckEntityProvider( this ),
+                    new SimpleEntityProvider<KaeuferKreisComposite>( this, KaeuferKreisComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, KaeuferKreisComposite.NAME ) ),
                     new SimpleEntityProvider<BodenRichtwertRichtlinieErgaenzungComposite>( this,
-                            BodenRichtwertRichtlinieErgaenzungComposite.class, new NameImpl( KapsRepository.NAMESPACE,
+                            BodenRichtwertRichtlinieErgaenzungComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE,
                                     BodenRichtwertRichtlinieErgaenzungComposite.NAME ) ),
                     new SimpleEntityProvider<BodenRichtwertRichtlinieArtDerNutzungComposite>( this,
                             BodenRichtwertRichtlinieArtDerNutzungComposite.class, new NameImpl(
                                     KapsRepository.NAMESPACE, BodenRichtwertRichtlinieArtDerNutzungComposite.NAME ) ),
 
-                    new SimpleEntityProvider<NutzungComposite>( this, NutzungComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, NutzungComposite.NAME ) ),
-                    new SimpleEntityProvider<GebaeudeArtComposite>( this, GebaeudeArtComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, GebaeudeArtComposite.NAME ) ),
-                    new SimpleEntityProvider<GebaeudeComposite>( this, GebaeudeComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, GebaeudeComposite.NAME ) ),
+                    new SimpleEntityProvider<NutzungComposite>( this, NutzungComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, NutzungComposite.NAME ) ),
+                    new SimpleEntityProvider<GebaeudeArtComposite>( this, GebaeudeArtComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, GebaeudeArtComposite.NAME ) ),
+                    new SimpleEntityProvider<GebaeudeComposite>( this, GebaeudeComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, GebaeudeComposite.NAME ) ),
 
-                    new SimpleEntityProvider<GemeindeComposite>( this, GemeindeComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, GemeindeComposite.NAME ) ),
-                    new SchlEntityProvider<StrasseComposite>( this, StrasseComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, StrasseComposite.NAME ), schl ),
+                    new SimpleEntityProvider<GemeindeComposite>( this, GemeindeComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, GemeindeComposite.NAME ) ),
+                    new SchlEntityProvider<StrasseComposite>( this, StrasseComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, StrasseComposite.NAME ), schl ),
 
-                    new SimpleEntityProvider<GemarkungComposite>( this, GemarkungComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, GemarkungComposite.NAME ) ),
+                    new SimpleEntityProvider<GemarkungComposite>( this, GemarkungComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, GemarkungComposite.NAME ) ),
                     new VertragsdatenBaulandEntityProvider( this ),
                     new SimpleEntityProvider<AusstattungBewertungComposite>( this, AusstattungBewertungComposite.class,
                             new NameImpl( KapsRepository.NAMESPACE, AusstattungBewertungComposite.NAME ) ),
-                    new VertragsdatenAgrarEntityProvider( this ), new SimpleEntityProvider<FlurComposite>( this,
-                            FlurComposite.class, new NameImpl( KapsRepository.NAMESPACE, FlurComposite.NAME ) ),
+                    new VertragsdatenAgrarEntityProvider( this ),
+                    new SimpleEntityProvider<FlurComposite>( this, FlurComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, FlurComposite.NAME ) ),
                     new WohnungseigentumEntityProvider( this ), new WohnungEntityProvider( this ),
 
                     new SimpleEntityProvider<NHK2010AnbautenComposite>( this, NHK2010AnbautenComposite.class,
@@ -217,8 +227,8 @@ public class KapsRepository
                             new NameImpl( KapsRepository.NAMESPACE, NHK2010BaupreisIndexComposite.NAME ) ),
                     new NHK2010BewertungEntityProvider( this ), new NHK2000BewertungEntityProvider( this ),
                     new SimpleEntityProvider<ErmittlungModernisierungsgradComposite>( this,
-                            ErmittlungModernisierungsgradComposite.class, new NameImpl( KapsRepository.NAMESPACE,
-                                    ErmittlungModernisierungsgradComposite.NAME ) ),
+                            ErmittlungModernisierungsgradComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, ErmittlungModernisierungsgradComposite.NAME ) ),
                     new SimpleEntityProvider<ErtragswertverfahrenComposite>( this, ErtragswertverfahrenComposite.class,
                             new NameImpl( KapsRepository.NAMESPACE, ErtragswertverfahrenComposite.NAME ) ),
 
@@ -235,8 +245,8 @@ public class KapsRepository
                     // EntwicklungsZustandComposite.class, new NameImpl(
                     // KapsRepository.NAMESPACE, "Entwicklungszustand" ) ) )
 
-                    new SimpleEntityProvider<BodennutzungComposite>( this, BodennutzungComposite.class, new NameImpl(
-                            KapsRepository.NAMESPACE, BodennutzungComposite.NAME ) ) );
+                    new SimpleEntityProvider<BodennutzungComposite>( this, BodennutzungComposite.class,
+                            new NameImpl( KapsRepository.NAMESPACE, BodennutzungComposite.NAME ) ) );
         }
         catch (Exception e) {
             throw new RuntimeException( e );
@@ -266,12 +276,43 @@ public class KapsRepository
         return entities.find();
     }
 
+//    @Override
+//    public <T> Query<T> findEntities( final Class<T> compositeType, final BooleanExpression expression,
+//            final int firstResult, final int maxResults ) {
+//
+//        ExecutorService exec = Executors.newSingleThreadExecutor();
+//        final Callable<Query<T>> call = new Callable<Query<T>>() {
+//
+//            @Override
+//            public Query<T> call() {
+//                return findEntities0( compositeType, expression, firstResult, maxResults );
+//            }
+//        };
+//        final Future<Query<T>> future = exec.submit( call );
+//        try {
+//            return future.get( 1000, TimeUnit.MILLISECONDS );
+//        }
+//        catch (TimeoutException timeout) {
+//            MessageDialog.openInformation( PolymapWorkbench.getShellToParentOn(), "Zu große Ergebnisliste",
+//                    "Die Suchanfrage dauerte zu lange.\n" +
+//                    "Schränken Sie die Suche bitte weiter ein, um alle Treffer anzuzeigen." ); 
+//            log.error( "TIMEOUT KapsRepository.findEntitities();" + compositeType + ":'" + expression.toString() + "'" );
+//            Thread.currentThread().dumpStack();
+//            return null;
+//        }
+//        catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//        catch (ExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    public <T> Query<T> findEntities( Class<T> compositeType, BooleanExpression expression, int firstResult,
-            int maxResults ) {
+    @Override
+    public <T> Query<T> findEntities( final Class<T> compositeType, final BooleanExpression expression,
+            final int firstResult, int maxResults ) {
         // Lucene does not like Integer.MAX_VALUE!?
         maxResults = Math.min( maxResults, 1000000 );
-
         return super.findEntities( compositeType, expression, firstResult, maxResults );
     }
 
@@ -377,9 +418,7 @@ public class KapsRepository
             Polymap.getSessionDisplay().asyncExec( new Runnable() {
 
                 public void run() {
-                    MessageDialog.openError(
-                            PolymapWorkbench.getShellToParentOn(),
-                            "Fehler beim Löschen",
+                    MessageDialog.openError( PolymapWorkbench.getShellToParentOn(), "Fehler beim Löschen",
                             "Das Löschen dieses Objektes ist noch nicht implementiert.\n Bitte legen Sie ein entsprechendes Ticket im trac an.\n\n http://polymap.org/kaps/newticket" );
                 }
             } );
@@ -414,8 +453,8 @@ public class KapsRepository
                         // do nothing
                     }
                     else if ((latest.gueltigAb().get() == null && current.gueltigAb().get() != null)
-                            || (current.gueltigAb().get() != null && latest.gueltigAb().get()
-                                    .before( current.gueltigAb().get() ))) {
+                            || (current.gueltigAb().get() != null
+                                    && latest.gueltigAb().get().before( current.gueltigAb().get() ))) {
                         latest = current;
                     }
                 }
@@ -535,14 +574,14 @@ public class KapsRepository
 
 
     private void remove( VertragComposite vertrag ) {
-    	for (WohnungComposite wohnung : WohnungComposite.Mixin.findWohnungenFor( vertrag )) {
-    		// nicht editierbar in Wohnungsformular
-    		wohnung.kaufpreis().set(null);
-    		wohnung.bereinigterVollpreis().set(null);
-    		wohnung.vollpreisWohnflaeche().set(null);
-    		wohnung.bodenpreis().set(null);
-    	}
-    	
+        for (WohnungComposite wohnung : WohnungComposite.Mixin.findWohnungenFor( vertrag )) {
+            // nicht editierbar in Wohnungsformular
+            wohnung.kaufpreis().set( null );
+            wohnung.bereinigterVollpreis().set( null );
+            wohnung.vollpreisWohnflaeche().set( null );
+            wohnung.bodenpreis().set( null );
+        }
+
         ErmittlungModernisierungsgradComposite ermittlungModernisierungsgradComposite = ErmittlungModernisierungsgradComposite.Mixin
                 .forVertrag( vertrag );
         if (ermittlungModernisierungsgradComposite != null) {
@@ -579,9 +618,10 @@ public class KapsRepository
             removeEntity( vertragsdatenErweitertComposite );
         }
         VertragComposite template = QueryExpressions.templateFor( VertragComposite.class );
-        BooleanExpression expr = QueryExpressions.eq( template.gesplittetEingangsnr(), vertrag.eingangsNr().get()
-                .toString() );
-        for (VertragComposite container : KapsRepository.instance().findEntities( VertragComposite.class, expr, 0, -1 )) {
+        BooleanExpression expr = QueryExpressions.eq( template.gesplittetEingangsnr(),
+                vertrag.eingangsNr().get().toString() );
+        for (VertragComposite container : KapsRepository.instance().findEntities( VertragComposite.class, expr, 0,
+                -1 )) {
             container.gesplittet().set( false );
             container.gesplittetEingangsnr().set( null );
         }

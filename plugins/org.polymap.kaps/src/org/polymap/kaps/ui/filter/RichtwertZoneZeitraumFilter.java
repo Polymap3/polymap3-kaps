@@ -59,7 +59,7 @@ public class RichtwertZoneZeitraumFilter
         // .templateFor( RichtwertzoneComposite.class );
         //
         // Map<String, GemeindeComposite> typen =
-        // KapsRepository.instance().entitiesWithNames(
+        // repository().entitiesWithNames(
         // GemeindeComposite.class );
         //
         // site.addStandardLayout( site.newFormField( result, "gemeinde",
@@ -73,7 +73,7 @@ public class RichtwertZoneZeitraumFilter
     }
 
 
-    protected Query<RichtwertzoneComposite> createQuery( IFilterEditorSite site ) {
+    protected Query<RichtwertzoneComposite> createFilterQuery( final IFilterEditorSite site, final KapsRepository repository ) {
         RichtwertzoneComposite template = QueryExpressions.templateFor( RichtwertzoneComposite.class );
 
         Object[] jahre = (Object[])site.getFieldValue( "date" );
@@ -96,7 +96,7 @@ public class RichtwertZoneZeitraumFilter
                 expr2 = expr2 == null ? le : QueryExpressions.and( ge, le );
             }
             if (expr2 != null) {
-                Query<RichtwertzoneZeitraumComposite> daten = KapsRepository.instance().findEntities(
+                Query<RichtwertzoneZeitraumComposite> daten = repository().findEntities(
                         RichtwertzoneZeitraumComposite.class, expr2, 0, -1 );
 
                 for (RichtwertzoneZeitraumComposite kv : daten) {
@@ -115,6 +115,6 @@ public class RichtwertZoneZeitraumFilter
             }
         }
 
-        return KapsRepository.instance().findEntities( RichtwertzoneComposite.class, dExpr, 0, getMaxResults() );
+        return repository().findEntities( RichtwertzoneComposite.class, dExpr, 0, getMaxResults() );
     }
 }
